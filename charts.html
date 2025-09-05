@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Drawing Board</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    #controls {
+      margin: 15px;
+    }
+    canvas {
+      border: 2px solid #333;
+      background: #fff;
+      cursor: crosshair;
+    }
+    button {
+      margin-left: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+    }
+    #saveBtn {
+      background: #28a745;
+      color: white;
+      border: none;
+      font-weight: bold;
+    }
+    #saveBtn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎨 Canvas Drawing Board</h2>
+  
+  <div id="controls">
+    <label>Color: </label>
+    <input type="color" id="colorPicker" value="#000000">
+
+    <label style="margin-left:15px;">Stroke Width: </label>
+    <input type="range" id="strokeWidth" min="1" max="30" value="4">
+
+    <button id="eraserBtn">Eraser</button>
+    <button id="clearBtn">Clear</button>
+    <button id="saveBtn">💾 Save Drawing</button>
+  </div>
+
+  <canvas id="drawingCanvas" width="600" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+    const colorPicker = document.getElementById("colorPicker");
+    const strokeWidthInput = document.getElementById("strokeWidth");
+    const eraserBtn = document.getElementById("eraserBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const saveBtn = document.getElementById("saveBtn");
+
+    let drawing = false;
+    let erasing = false; // track eraser mode
+
+    canvas.addEventListener("mousedown", (e) => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener("mouseup", () => { drawing = false; });
+    canvas.addEventListener("mouseleave", () => { drawing = false; });
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(event) {
+      if (!drawing) return;
+
+      ctx.lineWidth = strokeWidthInput.value;
+      ctx.lineCap = "round";
+
+      if (erasing) {
+        ctx.strokeStyle = "#ffffff"; // erases with background color
+      } else {
+        ctx.strokeStyle = colorPicker.value;
+      }
+
+      ctx.lineTo(event.offsetX, event.offsetY);
+      ctx.stroke();
+      ctx.moveTo(event.offsetX, event.offsetY);
+    }
+
+    // Toggle eraser
+    eraserBtn.addEventListener("click", () => {
+      erasing = !erasing;
+      eraserBtn.textContent = erasing ? "Draw Mode" : "Eraser";
+    });
+
+    // Clear canvas
+    clearBtn.addEventListener("click", () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // Save canvas as PNG
+    saveBtn.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.download = "my_drawing.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  </script>
+</body>
+</html>
